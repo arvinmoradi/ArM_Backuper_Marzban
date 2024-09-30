@@ -1,25 +1,26 @@
 #!/bin/bash
 
-# ایجاد پوشه موقت برای دانلود فایل‌ها
-TEMP_DIR=$(mktemp -d)
+# نمایش پیام نصب
+echo -e "\e[32mStarting the installation process...\e[0m"
 
-# دانلود فایل های مورد نیاز
-echo "Downloading backup-marzban.sh..."
-curl -o "$TEMP_DIR/backup-marzban.sh" https://raw.githubusercontent.com/arvinmroadi/ArM_Backuper_Marzban/main/backup_marzban_v1.3.sh
+# دانلود و انتقال اسکریپت به /usr/local/bin
+echo -e "\e[33mDownloading and installing the backup script...\e[0m"
+curl -s https://raw.githubusercontent.com/arvinmoradi/ArM_Backuper_Marzban/main/backup_marzban_v1.3.sh -o /usr/local/bin/arm_backuper_marzban
 
-# انتقال فایل backup-marzban.sh به مسیر /root/
-echo "Moving backup-marzban.sh to /root/..."
-mv "$TEMP_DIR/backup-marzban.sh" /root/backup-marzban.sh
+# چک کردن موفقیت دانلود
+if [ $? -eq 0 ]; then
+    echo -e "\e[32mScript downloaded successfully.\e[0m"
+else
+    echo -e "\e[31mFailed to download the script! Exiting...\e[0m"
+    exit 1
+fi
 
-# ایجاد دسترسی اجرا برای فایل backup-marzban.sh
-echo "Setting execute permissions for backup-marzban.sh..."
-chmod +x /root/backup-marzban.sh
+# دادن دسترسی اجرایی به اسکریپت
+chmod +x /usr/local/bin/arm_backuper_marzban
 
-# ایجاد alias برای اجرای ساده‌تر
-echo "alias arm_backuper_marzban='/root/backup-marzban.sh'" >> ~/.bashrc
-source ~/.bashrc
+# نمایش پیام نصب موفقیت‌آمیز
+echo -e "\e[32mInstallation complete. You can now use the command 'arm_backuper_marzban' to run the script.\e[0m"
 
-# حذف پوشه موقت
-rm -rf "$TEMP_DIR"
-
-echo "Installation complete. You can now use the command 'arm_backuper_marzban' to run the script."
+# اجرای اسکریپت
+echo -e "\e[33mRunning the script now...\e[0m"
+/usr/local/bin/arm_backuper_marzban
