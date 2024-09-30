@@ -5,7 +5,7 @@ echo -e "\e[32mStarting the installation process...\e[0m"
 
 # دانلود و انتقال اسکریپت به /usr/local/bin
 echo -e "\e[33mDownloading and installing the backup script...\e[0m"
-curl -s https://raw.githubusercontent.com/arvinmoradi/ArM_Backuper_Marzban/main/backup_marzban_v1.3.sh -o /usr/local/bin/arm_backuper_marzban
+curl -s -o /usr/local/bin/arm_backuper_marzban https://raw.githubusercontent.com/arvinmoradi/ArM_Backuper_Marzban/main/backup_marzban_v1.3.sh
 
 # چک کردن موفقیت دانلود
 if [ $? -eq 0 ]; then
@@ -23,4 +23,4 @@ echo -e "\e[32mInstallation complete. You can now use the command 'arm_backuper_
 
 # اجرای اسکریپت
 echo -e "\e[33mRunning the script now...\e[0m"
-/usr/local/bin/arm_backuper_marzban
+exec /usr/local/bin/arm_backuper_marzban
