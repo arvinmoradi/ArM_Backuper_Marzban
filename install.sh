@@ -5,7 +5,7 @@ echo -e "\e[32mStarting the installation process...\e[0m"
 
 # Download and move the script to /usr/local/bin
 echo -e "\e[33mDownloading and installing the backup script...\e[0m"
-curl -s -o /usr/local/bin/arm_bm https://raw.githubusercontent.com/arvinmoradi/ArM_Backuper_Marzban/main/backup_marzban_v1.3.sh
+curl -s -o /usr/local/bin/arm_bm https://raw.githubusercontent.com/arvinmoradi/ArM_Backuper_Marzban/main/backup_marzban_v1.4.sh
 
 # Check if the download was successful
 if [ $? -eq 0 ]; then
