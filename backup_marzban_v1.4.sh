@@ -2,9 +2,12 @@
 
 # Clear the terminal screen
 clear
+sudo apt update
 sudo apt install toilet -y
 sudo apt install -y toilet pv curl
 sudo apt install figlet -y
+sudo apt install toilet-fonts
+
 # Function to display the welcome message
 function display_welcome {
     clear
@@ -28,6 +31,7 @@ function install_dependencies {
     sudo apt install toilet -y
     sudo apt install -y toilet pv curl
     sudo apt install figlet -y
+    sudo apt install toilet-fonts
     echo "Dependencies installed."
 }
 
