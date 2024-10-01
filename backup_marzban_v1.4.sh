@@ -2,6 +2,9 @@
 
 # Clear the terminal screen
 clear
+sudo apt install toilet -y
+sudo apt install -y toilet pv curl
+sudo apt install figlet -y
 # Function to display the welcome message
 function display_welcome {
     clear
