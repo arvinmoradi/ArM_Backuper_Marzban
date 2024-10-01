@@ -2,7 +2,8 @@
 
 # Clear the terminal screen
 clear
-
+sudo apt install -y toilet pv curl
+sudo apt install figlet -y
 # Function to display the welcome message
 function display_welcome {
     clear
@@ -22,8 +23,9 @@ SCRIPT_PATH="$(realpath "$0")"
 # Function to install required packages
 function install_dependencies {
     echo "Installing required packages..."
-    #sudo apt update
+    sudo apt update
     sudo apt install -y toilet pv curl
+    sudo apt install figlet -y
     echo "Dependencies installed."
 }
 
