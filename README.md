@@ -8,4 +8,3 @@
 </svg>
     </clipboard-copy>
   </div></div>
-<code></code>
