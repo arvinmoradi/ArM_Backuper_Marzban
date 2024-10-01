@@ -8,7 +8,7 @@ sudo apt install figlet -y
 function display_welcome {
     clear
     echo "********************************************"
-    toilet -f big --gay "ArM ❤️ ShH" | sed 's/^/* /; s/$/ */'
+    toilet -f big --gay "ArM  ShH" | sed 's/^/* /; s/$/ */'
     echo -e "\e[32mArM Backuper Marzban\e[0m" # Project name in green
     echo "********************************************"
 }
