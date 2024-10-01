@@ -216,6 +216,12 @@ function backup {
     DIR_PATH_1="/var/lib/marzban/"
     ARCHIVE_NAME_1="arm_backup_DB_$(date +%Y%m%d_%H%M%S).$ARCHIVE_EXT"
 
+    # Check if the first directory exists
+    if [ ! -d "$DIR_PATH_1" ]; then
+        display_message "Error: Directory $DIR_PATH_1 does not exist." "31"
+        exit 1
+    fi
+
     display_message "Compressing files from /var/lib/marzban/..." "33"
     if [ "$COMPRESS_CMD" == "gzip" ]; then
         tar -cf - -C "$DIR_PATH_1" . | pv -p -s $(du -sb "$DIR_PATH_1" | awk '{print $1}') | gzip > "$ARCHIVE_NAME_1"
@@ -235,6 +241,12 @@ function backup {
     # Backup the second directory (/opt/marzban/)
     DIR_PATH_2="/opt/marzban/"
     ARCHIVE_NAME_2="arm_backup_opt_$(date +%Y%m%d_%H%M%S).$ARCHIVE_EXT"  # Changed file name to arm_backup_opt
+
+    # Check if the second directory exists
+    if [ ! -d "$DIR_PATH_2" ]; then
+        display_message "Error: Directory $DIR_PATH_2 does not exist." "31"
+        exit 1
+    fi
 
     display_message "Compressing files from /opt/marzban/..." "33"
     if [ "$COMPRESS_CMD" == "gzip" ]; then
