@@ -2,13 +2,14 @@
 
 # Clear the terminal screen
 clear
+sudo apt install -y
 sudo apt install -y toilet pv curl
 sudo apt install figlet -y
 # Function to display the welcome message
 function display_welcome {
     clear
     echo "********************************************"
-    toilet -f big --gay "ArM  ShH" | sed 's/^/* /; s/$/ */'
+    toilet -f big --gay "ArM ❤️ ShH" | sed 's/^/* /; s/$/ */'
     echo -e "\e[32mArM Backuper Marzban\e[0m" # Project name in green
     echo "********************************************"
 }
