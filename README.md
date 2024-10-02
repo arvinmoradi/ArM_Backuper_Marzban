@@ -12,9 +12,9 @@ ArM Backuper Marzban یک اسکریپت کارآمد برای تهیه نسخه
 
 ## پیش‌نیازها
 
-- **سیستم عامل:** لینوکس
-- **نرم‌افزار:** cURL و bash
-
+apt install toilet -y
+apt install figlet -y
+apt install toilet-fonts
 ## نصب
 
 برای نصب ArM Backuper Marzban، از دستور زیر استفاده کنید:
