@@ -1,7 +1,5 @@
 # ArM Backuper Marzban
 
-![Project Logo](https://raw.githubusercontent.com/arvinmoradi/ArM_Backuper_Marzban/main/image.png) <!-- تصویر لوگو -->
-
 ArM Backuper Marzban یک اسکریپت کارآمد برای تهیه نسخه پشتیبان از داده‌ها و مدیریت آن‌ها است. این اسکریپت به شما امکان می‌دهد تا به راحتی از داده‌های خود بکاپ بگیرید و در صورت نیاز آن‌ها را بازیابی کنید.
 
 ## ویژگی‌ها
@@ -22,3 +20,9 @@ apt install toilet-fonts
 
 ```bash
 bash <(curl -s https://raw.githubusercontent.com/arvinmoradi/ArM_Backuper_Marzban/main/install.sh)
+```
+## فراخوانی
+بعد از نصب اسکریپت ، برای فراخوانی از دستور زیر استفاده کنید.
+```bash
+arm_bm
+```
