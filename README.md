@@ -42,5 +42,5 @@ arm_bm
 
 فایل‌های بکاپ را در مسیر /root/ قرار می دهیم و در اسکریپت گزینه Restore را انتخاب می‌کنیم . اسکریپت به صورت خودکار عملیات بازگردانی را انجام خواهد داد.
 
+<iframe width="560" height="315" src="https://www.youtube.com/watch?v=fivM6z55VtA&t=168s" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-[فیلم آموزشی ArM Backuper Marzban](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
