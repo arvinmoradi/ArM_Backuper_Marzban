@@ -24,10 +24,3 @@ echo -e "\e[32mInstallation complete. You can now use the command 'arm_bm' to ru
 # Run the script
 echo -e "\e[33mRunning the script now...\e[0m"
 exec /usr/local/bin/arm_bm
-
-# Check if the "toilet" package is installed, and install it if necessary
-if ! command -v toilet &> /dev/null; then
-    echo -e "\e[33mInstalling toilet for fancy text display...\e[0m"
-    sudo apt update
-    sudo apt install toilet -y
-fi
