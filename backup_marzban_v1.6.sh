@@ -404,8 +404,8 @@ function backup {
         ARCHIVE_EXT="tar.xz"
     fi
 
-    # Define total steps for progress (3 main steps: compress first directory + compress second directory + send files)
-    total_steps=3
+    # Define total steps for progress (4 main steps now)
+    total_steps=4  # 3 steps before, now 4 (database backup added)
 
     # Initialize step counter
     current_step=0
@@ -424,13 +424,14 @@ function backup {
         echo -e "\e[${color}m$message\e[0m"
     }
 
-    # Start the backup process
-    display_message "Starting backup process..." "36"
-    show_progress
-
     # Backup paths
     DIR_PATH_1="/var/lib/marzban/"
     DIR_PATH_2="/opt/marzban/"
+
+    # MySQL credentials
+    MYSQL_USER="your_mysql_user"
+    MYSQL_PASSWORD="your_mysql_password"
+    MYSQL_DB="marzban"
 
     # Check if both directories exist
     missing_paths=0
@@ -456,7 +457,36 @@ function backup {
         return
     fi
 
-    # Proceed with backup since both directories exist
+    # --- Database Backup Step ---
+    ARCHIVE_DB="arm_backup_DB_$(date +%Y%m%d_%H%M%S).sql"
+    ARCHIVE_DB_COMPRESSED="arm_backup_DB_$(date +%Y%m%d_%H%M%S).$ARCHIVE_EXT"
+
+    display_message "Backing up MySQL database..." "33"
+    mysqldump -u $MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DB > "/tmp/$ARCHIVE_DB"
+
+    if [ $? -eq 0 ]; then
+        display_message "MySQL dump completed successfully." "32"
+
+        # Compress the MySQL dump
+        tar -cf - -C /tmp "$ARCHIVE_DB" | $COMPRESS_CMD > "$ARCHIVE_DB_COMPRESSED"
+        rm "/tmp/$ARCHIVE_DB"  # Delete the raw .sql file
+
+        if [ $? -eq 0 ]; then
+            display_message "Compression of MySQL dump completed successfully." "32"
+            current_step=$((current_step + 1))
+            show_progress
+        else
+            display_message "Failed to compress the MySQL dump!" "31"
+            exit 1
+        fi
+    else
+        display_message "MySQL dump failed!" "31"
+        exit 1
+    fi
+
+    # --- End of Database Backup Step ---
+
+    # Compress files from /var/lib/marzban/
     ARCHIVE_NAME_1="arm_backup_DB_$(date +%Y%m%d_%H%M%S).$ARCHIVE_EXT"
     ARCHIVE_NAME_2="arm_backup_opt_$(date +%Y%m%d_%H%M%S).$ARCHIVE_EXT"
 
@@ -476,6 +506,7 @@ function backup {
         exit 1
     fi
 
+    # Compress files from /opt/marzban/
     display_message "Compressing files from $DIR_PATH_2..." "33"
     if [ "$COMPRESS_CMD" == "gzip" ]; then
         tar -cf - -C "$DIR_PATH_2" . | pv -p -s $(du -sb "$DIR_PATH_2" | awk '{print $1}') | gzip > "$ARCHIVE_NAME_2"
@@ -492,9 +523,17 @@ function backup {
         exit 1
     fi
 
-    # Display 100% progress after both compressions
-    show_progress
-    echo -ne "\n"
+    # Send the MySQL backup file to Telegram
+    display_message "Sending the MySQL dump to Telegram..." "36"
+    curl -F chat_id="$CHAT_ID" -F document=@"$ARCHIVE_DB_COMPRESSED" "https://api.telegram.org/bot$BOT_TOKEN/sendDocument" > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        display_message "MySQL dump sent to Telegram successfully." "32"
+        rm -f "$ARCHIVE_DB_COMPRESSED"
+        display_message "Deleted the MySQL dump compressed file from the server." "36"
+    else
+        display_message "Failed to send the MySQL dump to Telegram!" "31"
+        exit 1
+    fi
 
     # Send the first compressed file to Telegram
     display_message "Sending the first compressed file to Telegram..." "36"
@@ -527,6 +566,7 @@ function backup {
     # Wait for user input before returning to the main menu
     read -p "Press any key to return to the main menu..." -n1 -s
 }
+
 
 # Function for restore (Moving, extracting, and deleting the backup file with progress bars)
 function restore {
