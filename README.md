@@ -18,9 +18,10 @@
 
 ## پیش‌نیازها
 ```bash
-apt install toilet -y
-apt install figlet -y
-apt install toilet-fonts
+sudo apt install toilet -y
+sudo apt install figlet -y
+sudo apt install toilet-fonts
+sudo apt install pv
 ```
 ## نصب
 
