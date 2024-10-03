@@ -49,4 +49,4 @@ arm_bm
 
 ## آموزش ویدویی
 
-[فیلم آموزشی ArM Backuper Marzban](https://www.youtube.com/watch?v=fivM6z55VtA&t=168s)
+[فیلم آموزشی ArM Backuper Marzban](https://www.youtube.com/watch?v=Il9wEefPOA4)
