@@ -147,7 +147,7 @@ function exit_script() {
     trap - INT
     echo -e "\nGoodbye!"
     exit 0
-}K
+}
 function restart_marzban {
     echo -e "\e[33mRestarting Marzban...\e[0m"
 
@@ -682,7 +682,6 @@ function edit_bot_info {
     
     echo -e "\e[32mBot info updated successfully.\e[0m"
 }
-
 
 # Function to edit compression method
 function edit_compression_method {
