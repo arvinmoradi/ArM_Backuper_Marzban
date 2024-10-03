@@ -23,10 +23,6 @@ SCRIPT_PATH="$(realpath "$0")"
 function install_dependencies {
     echo "Installing required packages..."
     sudo apt update
-    sudo apt install toilet -y
-    sudo apt install -y toilet pv curl
-    sudo apt install figlet -y
-    sudo apt install toilet-fonts
     echo "Dependencies installed."
 }
 
@@ -81,9 +77,14 @@ function display_status {
 
 # Function to display the main menu
 function main_menu {
+    # Setting up a general trap for SIGINT (CTRL+C) to exit the script cleanly
+    trap exit_script SIGINT
+
     while true; do
         display_welcome
         display_status
+
+        # Check if ArM Backuper Marzban is installed
         if check_installation; then
             echo -e "\e[32mArM Backuper Marzban is installed.\e[0m"
             echo "1) Backup"
@@ -92,9 +93,10 @@ function main_menu {
             echo "4) Edit Compression Method"
             echo "5) Set Cron Job"
             echo "6) Remove Cron Job"
-            echo "7) Marzban Restart"    # Added option for Marzban Restart
+            echo "7) Marzban Restart"
             echo "8) Uninstall"
             echo "9) Exit"
+
             read -p "Choose an option: " option
             
             case $option in
@@ -104,39 +106,62 @@ function main_menu {
                 4) edit_compression_method ;;
                 5) set_cron_job ;;
                 6) remove_cron_job ;;
-                7) restart_marzban ;;    # Call the restart function
+                7) restart_marzban ;;    # Call the restart function for Marzban
                 8) uninstall ;;
-                9) exit 0 ;;
+                9) exit_script ;;        # Proper exit
                 *) echo -e "\e[31mInvalid option! Please choose again.\e[0m" ;;
             esac
         else
             echo -e "\e[31mArM Backuper Marzban is not installed.\e[0m"
             echo "1) Install"
             echo "2) Exit"
+
             read -p "Choose an option: " option
             
             case $option in
-                1) install_dependencies; install_script; echo -e "\e[32mArM Backuper Marzban installed. Returning to main menu.\e[0m" ;;
-                2) exit 0 ;;
+                1) 
+                    install_dependencies
+                    install_script
+                    echo -e "\e[32mArM Backuper Marzban installed. Returning to main menu.\e[0m"
+                    ;;
+                2) exit_script ;;  # Proper exit
                 *) echo -e "\e[31mInvalid option! Please choose again.\e[0m" ;;
             esac
         fi
     done
 }
+
+# Function to handle the CTRL + C signal during the Marzban restart process
+function ctrl_c_restarting_marzban() {
+    echo -e "\n\e[32mMarzban successfully restarted.\e[0m"
+    main_menu
+}
+# Function to handle CTRL + C signal in the main menu
+function ctrl_c_main_menu() {
+    echo -e "\nExiting..."
+    exit 0
+}
+# Function to properly exit the script
+function exit_script() {
+    # Restore the default trap before exiting
+    trap - INT
+    echo -e "\nGoodbye!"
+    exit 0
+}K
 function restart_marzban {
     echo -e "\e[33mRestarting Marzban...\e[0m"
 
-    # Trap to handle CTRL+C and return to the main menu with success message
-    trap 'echo -e "\n\e[32mMarzban successfully restarted.\e[0m"; read -p "Press any key to return to the main menu..." -n1 -s; main_menu' SIGINT
+    # Set a temporary trap for SIGINT (CTRL+C) within this function only
+    trap 'echo -e "\n\e[32mMarzban successfully restarted.\e[0m"; return' SIGINT
 
     # Restart the Marzban service in the background
     marzban restart &
 
     MARZBAN_PID=$!  # Get the process ID of the restart command
 
-    # Monitor the logs to detect when Marzban has started
+    # Monitor the logs to detect when Marzban has started successfully
     while true; do
-        # Fetch the log and check for the specific line
+        # Fetch the log and check for the specific line indicating Marzban has started
         log_line=$(docker logs marzban 2>&1 | grep -m 1 "Uvicorn running on http://")
 
         if [[ ! -z "$log_line" ]]; then
@@ -147,12 +172,12 @@ function restart_marzban {
         sleep 1
     done
 
-    # Wait for user to press CTRL+C to stop
+    # Wait for the Marzban restart process to complete or for CTRL+C to be pressed
     wait $MARZBAN_PID
 
-    # If it reaches here, that means CTRL+C was pressed and the trap will trigger
+    # Reset the trap to its default behavior
+    trap - SIGINT
 }
-
 function check_bot_info {
     local BOT_TOKEN
     local CHAT_ID
