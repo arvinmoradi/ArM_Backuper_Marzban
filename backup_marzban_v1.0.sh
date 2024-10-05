@@ -8,10 +8,15 @@ function display_welcome {
     clear
     echo "********************************************"
     toilet -f big --gay "ArM ❤️ ShH" | sed 's/^/* /; s/$/ */'
-    echo -e "\e[32mArM Backuper Marzban\e[0m" # Project name in green
+    echo -e "\e[32mArM Backuper Marzban v1.0\e[0m" # Project name in green
     echo "********************************************"
 }
-
+# Function to display colorful messages
+function display_message {
+    local message=$1
+    local color=$2
+    echo -e "\e[${color}m$message\e[0m"
+}
 # Configuration file to store Telegram bot information
 CONFIG_FILE="$HOME/telegram_bot_config.conf"
 # File to store the compression method
@@ -24,6 +29,74 @@ function install_dependencies {
     echo "Installing required packages..."
     sudo apt update
     echo "Dependencies installed."
+}
+function main_menu {
+    # Setting up a general trap for SIGINT (CTRL+C) to exit the script cleanly
+    trap exit_script SIGINT
+
+    while true; do
+        display_welcome
+        display_status
+
+        # Check if ArM Backuper Marzban is installed
+        if check_installation; then
+            echo -e "\e[32mArM Backuper Marzban is installed.\e[0m"
+            echo "1) Backup"
+            echo "2) Restore"
+            echo "3) Edit Bot Info"
+            echo "4) Edit Compression Method"
+            echo "5) Set Cron Job"
+            echo "6) Remove Cron Job"
+            echo "7) Marzban Restart"
+            echo "8) Uninstall"
+            echo "9) Update Script"  # گزینه جدید برای آپدیت اسکریپت
+            echo "10) Exit"
+
+            read -p "Choose an option: " option
+            
+            case $option in
+                1) backup ;;
+                2) restore ;;
+                3) edit_bot_info ;;
+                4) edit_compression_method ;;
+                5) set_cron_job ;;
+                6) remove_cron_job ;;
+                7) restart_marzban ;;    # Call the restart function for Marzban
+                8) uninstall ;;
+                9) update_script ;;   # تابع آپدیت اسکریپت
+                10) exit_script ;;    # Proper exit
+                *) echo -e "\e[31mInvalid option! Please choose again.\e[0m" ;;
+            esac
+        else
+            echo -e "\e[31mArM Backuper Marzban is not installed.\e[0m"
+            echo "1) Install"
+            echo "2) Exit"
+
+            read -p "Choose an option: " option
+            
+            case $option in
+                1) 
+                    install_dependencies
+                    install_script
+                    echo -e "\e[32mArM Backuper Marzban installed. Returning to main menu.\e[0m"
+                    ;;
+                2) exit_script ;;  # Proper exit
+                *) echo -e "\e[31mInvalid option! Please choose again.\e[0m" ;;
+            esac
+        fi
+    done
+}
+function update_script {
+    echo -e "\e[36mUpdating script and restarting...\e[0m"
+    
+    # این دستور اسکریپت جدید را از GitHub دانلود و نصب می‌کند
+    bash <(curl -s https://raw.githubusercontent.com/arvinmoradi/ArM_Backuper_Marzban/main/install.sh)
+    
+    # پس از نصب، اسکریپت arm_bm اجرا می‌شود
+    arm_bm
+    
+    # خروج از اسکریپت فعلی
+    exit 0
 }
 
 # Function to check if the script is installed
@@ -38,7 +111,7 @@ function check_installation {
 # Function to display the script status
 function display_status {
     echo "********************************************"
-    
+
     # Display bot information
     if [ -f "$CONFIG_FILE" ]; then
         source "$CONFIG_FILE"
@@ -71,65 +144,68 @@ function display_status {
         echo -e "\e[31mCompression method not set!\e[0m"
     fi
 
+    # Display database type
+    detect_database
+    echo -e "\e[32mDatabase Type: $DB_TYPE\e[0m"
+
     echo "********************************************"
 }
+function detect_database {
+    # Define the path to the .env file
+    ENV_FILE="/opt/marzban/.env"
 
+    # Check if the .env file exists
+    if [ ! -f "$ENV_FILE" ]; then
+        echo "Error: .env file not found!"
+        DB_TYPE="Unknown"
+        return
+    fi
 
-# Function to display the main menu
-function main_menu {
-    # Setting up a general trap for SIGINT (CTRL+C) to exit the script cleanly
-    trap exit_script SIGINT
-
-    while true; do
-        display_welcome
-        display_status
-
-        # Check if ArM Backuper Marzban is installed
-        if check_installation; then
-            echo -e "\e[32mArM Backuper Marzban is installed.\e[0m"
-            echo "1) Backup"
-            echo "2) Restore"
-            echo "3) Edit Bot Info"
-            echo "4) Edit Compression Method"
-            echo "5) Set Cron Job"
-            echo "6) Remove Cron Job"
-            echo "7) Marzban Restart"
-            echo "8) Uninstall"
-            echo "9) Exit"
-
-            read -p "Choose an option: " option
-            
-            case $option in
-                1) backup ;;
-                2) restore ;;
-                3) edit_bot_info ;;
-                4) edit_compression_method ;;
-                5) set_cron_job ;;
-                6) remove_cron_job ;;
-                7) restart_marzban ;;    # Call the restart function for Marzban
-                8) uninstall ;;
-                9) exit_script ;;        # Proper exit
-                *) echo -e "\e[31mInvalid option! Please choose again.\e[0m" ;;
-            esac
-        else
-            echo -e "\e[31mArM Backuper Marzban is not installed.\e[0m"
-            echo "1) Install"
-            echo "2) Exit"
-
-            read -p "Choose an option: " option
-            
-            case $option in
-                1) 
-                    install_dependencies
-                    install_script
-                    echo -e "\e[32mArM Backuper Marzban installed. Returning to main menu.\e[0m"
-                    ;;
-                2) exit_script ;;  # Proper exit
-                *) echo -e "\e[31mInvalid option! Please choose again.\e[0m" ;;
-            esac
-        fi
-    done
+    # Check for MySQL by looking for MYSQL_ROOT_PASSWORD line with any value
+    if grep -q '^[[:space:]]*MYSQL_ROOT_PASSWORD[[:space:]]*=' "$ENV_FILE"; then
+        DB_TYPE="MySQL"
+    else
+        DB_TYPE="SQLite"
+    fi
 }
+
+function return_to_main_menu {
+    echo -e "\e[32mDatabase migration completed. Returning to main menu...\e[0m"
+    main_menu
+}
+
+# Continue after the first restart and proceed with the second part
+function continue_after_restart {
+    echo -e "\e[33mFirst restart complete. Continuing with additional setup...\e[0m"
+
+    # Second restart (or any other necessary setup) would go here
+    # Example: Start the containers again and wait for user input
+    echo -e "\e[33mStarting Marzban again... Waiting for manual termination.\e[0m"
+    
+    # Restart the containers in detached mode again
+    docker-compose -f /opt/marzban/docker-compose.yml up -d
+
+    # Monitor logs and wait for user input (CTRL+C) for final termination
+    while true; do
+        docker-compose -f /opt/marzban/docker-compose.yml logs --tail=10 | grep -q "Uvicorn running on http://0.0.0.0:8000"
+        if [[ $? -eq 0 ]]; then
+            echo -e "\e[32mMarzban is running. Press CTRL+C to stop and return to the main menu.\e[0m"
+            break
+        fi
+        sleep 5
+    done
+
+    # Wait for user to press CTRL+C
+    trap "echo -e '\e[31mExiting...'; docker-compose -f /opt/marzban/docker-compose.yml down; return_to_main_menu" SIGINT
+    while true; do :; done  # Infinite loop until CTRL+C is pressed
+}
+
+# Return to the main menu
+function return_to_main_menu {
+    echo -e "\e[32mReturning to main menu...\e[0m"
+    main_menu
+}
+
 
 # Function to handle the CTRL + C signal during the Marzban restart process
 function ctrl_c_restarting_marzban() {
@@ -409,7 +485,6 @@ function backup {
 
     # Initialize step counter
     current_step=0
-
     # Function to display progress bar
     function show_progress {
         progress=$((current_step * 100 / total_steps))
@@ -457,8 +532,8 @@ function backup {
     fi
 
     # Proceed with backup since both directories exist
-    ARCHIVE_NAME_1="arm_backup_DB_$(date +%Y%m%d_%H%M%S).$ARCHIVE_EXT"
-    ARCHIVE_NAME_2="arm_backup_opt_$(date +%Y%m%d_%H%M%S).$ARCHIVE_EXT"
+    ARCHIVE_NAME_1="arm_DB_backup_$(date +%Y%m%d_%H%M%S).$ARCHIVE_EXT"
+    ARCHIVE_NAME_2="arm_opt_backup_$(date +%Y%m%d_%H%M%S).$ARCHIVE_EXT"
 
     display_message "Compressing files from $DIR_PATH_1..." "33"
     if [ "$COMPRESS_CMD" == "gzip" ]; then
@@ -496,29 +571,54 @@ function backup {
     show_progress
     echo -ne "\n"
 
-    # Send the first compressed file to Telegram
-    display_message "Sending the first compressed file to Telegram..." "36"
-    curl -F chat_id="$CHAT_ID" -F document=@"$ARCHIVE_NAME_1" "https://api.telegram.org/bot$BOT_TOKEN/sendDocument" > /dev/null 2>&1
-    if [ $? -eq 0 ]; then
-        display_message "First file sent to Telegram successfully." "32"
-        rm -f "$ARCHIVE_NAME_1"
-        display_message "Deleted the first compressed file from the server." "36"
-    else
-        display_message "Failed to send the first file to Telegram!" "31"
-        exit 1
-    fi
+    # Function to split files larger than 49MB
+    # Function to split files larger than 49MB and send to Telegram
+    function split_and_send {
+        local archive_name=$1
+        local part_prefix="${archive_name}_part"
+        display_message "Checking size of $archive_name..." "36"
 
-    # Send the second compressed file to Telegram
-    display_message "Sending the second compressed file to Telegram..." "36"
-    curl -F chat_id="$CHAT_ID" -F document=@"$ARCHIVE_NAME_2" "https://api.telegram.org/bot$BOT_TOKEN/sendDocument" > /dev/null 2>&1
-    if [ $? -eq 0 ]; then
-        display_message "Second file sent to Telegram successfully." "32"
-        rm -f "$ARCHIVE_NAME_2"
-        display_message "Deleted the second compressed file from the server." "36"
-    else
-        display_message "Failed to send the second file to Telegram!" "31"
-        exit 1
-    fi
+        # Check if file size is greater than 49MB
+        if [ $(stat -c%s "$archive_name") -gt 51380224 ]; then
+            display_message "File is larger than 49MB. Splitting the file..." "33"
+            split -b 49M "$archive_name" "$part_prefix"
+            
+            for part in ${part_prefix}*; do
+                display_message "Sending $part to Telegram..." "36"
+                curl -F chat_id="$CHAT_ID" -F document=@"$part" "https://api.telegram.org/bot$BOT_TOKEN/sendDocument" > /dev/null 2>&1
+                
+                if [ $? -eq 0 ]; then
+                    display_message "$part sent to Telegram successfully." "32"
+                    rm -f "$part"
+                    display_message "Deleted $part from the server." "36"
+                else
+                    display_message "Failed to send $part to Telegram!" "31"
+                    exit 1
+                fi
+                
+                # Add a small delay to avoid rate limiting by Telegram
+                sleep 2
+            done
+
+            rm -f "$archive_name"
+            display_message "Deleted the original large file $archive_name from the server." "36"
+        else
+            display_message "Sending $archive_name to Telegram..." "36"
+            curl -F chat_id="$CHAT_ID" -F document=@"$archive_name" "https://api.telegram.org/bot$BOT_TOKEN/sendDocument" > /dev/null 2>&1
+            if [ $? -eq 0 ]; then
+                display_message "$archive_name sent to Telegram successfully." "32"
+                rm -f "$archive_name"
+                display_message "Deleted $archive_name from the server." "36"
+            else
+                display_message "Failed to send $archive_name to Telegram!" "31"
+                exit 1
+            fi
+        fi
+    }
+
+    # Send both files to Telegram (splitting if necessary)
+    split_and_send "$ARCHIVE_NAME_1"
+    split_and_send "$ARCHIVE_NAME_2"
 
     # Display final 100% progress
     echo -ne "\e[34mProgress: [\e[32m####################\e[34m] 100%\n\e[0m"
@@ -527,123 +627,143 @@ function backup {
     # Wait for user input before returning to the main menu
     read -p "Press any key to return to the main menu..." -n1 -s
 }
-
-# Function for restore (Moving, extracting, and deleting the backup file with progress bars)
+# Funciton Restore
 function restore {
     clear
-    display_welcome
-    echo -e "\e[36mLooking for the latest backup files in /root...\e[0m"
+    display_message "Starting restore process..." "36"
 
-    # Finding the latest backup files in /root
-    BACKUP_FILES=( $(ls -t /root/*.tar* 2>/dev/null | head -n 2) )
+    # Set paths for the database and OPT files
+    DIR_PATH_1="/var/lib/marzban/"
+    DIR_PATH_2="/opt/marzban/"
+    BACKUP_PREFIX="/root/arm_DB_backup"
+    ARCHIVE_EXT="tar.gz"  # Or you can take this from user input
+    RESTORE_FILE="/root/Temp_Restore/arm_DB_restore.$ARCHIVE_EXT"
 
-    # Check if we found exactly two files
-    if [ ${#BACKUP_FILES[@]} -ne 2 ]; then
-        echo -e "\e[31mExactly two backup files not found in /root.\e[0m"
-        read -p "Press any key to return to the main menu..." -n1 -s
-        return
-    fi
+    # Create temporary directory for reassembling
+    TEMP_DIR="/root/Temp_Restore"
+    mkdir -p "$TEMP_DIR"
 
-    # Assigning the found backup files to variables
-    BACKUP_FILE_DB="${BACKUP_FILES[0]}"
-    BACKUP_FILE_OPT="${BACKUP_FILES[1]}"
+    # Step 1: Check if there is a full backup file or split parts
+    display_message "Checking for full backup, split parts, or multiple parts..." "33"
 
-    echo -e "\e[32mFound backup files:\e[0m"
-    echo -e "  1. \e[34m$BACKUP_FILE_DB\e[0m"
-    echo -e "  2. \e[34m$BACKUP_FILE_OPT\e[0m"
-
-    # Remove existing files in /var/lib/marzban
-    echo -e "\e[33mRemoving existing files from /var/lib/marzban...\e[0m"
-    rm -rf /var/lib/marzban/*
-
-    # Move and extract the first backup file (Database)
-    echo -e "\e[33mMoving backup file $BACKUP_FILE_DB to /var/lib/marzban/...\e[0m"
-    cp "$BACKUP_FILE_DB" /var/lib/marzban/
-    if [ $? -eq 0 ]; then
-        echo -e "\e[32mBackup file moved successfully.\e[0m"
-    else
-        echo -e "\e[31mFailed to move the backup file.\e[0m"
-        read -p "Press any key to return to the main menu..." -n1 -s
-        return
-    fi
-
-    echo -e "\e[33mExtracting the backup file to /var/lib/marzban/...\e[0m"
-    cd /var/lib/marzban/ || exit
-    case "$(basename "$BACKUP_FILE_DB")" in
-        *.tar.gz)
-            pv "$BACKUP_FILE_DB" | tar -xzf -
-            ;;
-        *.tar.xz)
-            pv "$BACKUP_FILE_DB" | tar -xJf -
-            ;;
-        *.tar)
-            pv "$BACKUP_FILE_DB" | tar -xf -
-            ;;
-        *)
-            echo -e "\e[31mUnsupported backup file format.\e[0m"
+    # First check if we have split parts (files ending with _partxx)
+    if ls ${BACKUP_PREFIX}*.tar.gz_part* 1> /dev/null 2>&1; then
+        display_message "Found split DB backup parts..." "33"
+        
+        # Combine all parts to create the full backup file
+        cat ${BACKUP_PREFIX}*.tar.gz_part* > "$TEMP_DIR/combined_backup.tar.gz"
+        RESTORE_FILE="$TEMP_DIR/combined_backup.tar.gz"
+        
+        if [ $? -eq 0 ]; then
+            display_message "Successfully reassembled large DB backup into $RESTORE_FILE." "32"
+            # Remove the DB backup parts after reassembling
+            rm -f ${BACKUP_PREFIX}*.tar.gz_part*
+            display_message "Removed large backup parts from /root directory." "32"
+        else
+            display_message "Error reassembling the large DB backup!" "31"
             read -p "Press any key to return to the main menu..." -n1 -s
             return
-            ;;
-    esac
+        fi
 
-    echo -e "\e[32mExtraction completed successfully.\e[0m"
-    # Remove the compressed file after successful extraction
-    rm -f "$(basename "$BACKUP_FILE_DB")"
-    echo -e "\e[32mBackup file deleted after extraction from /var/lib/marzban.\e[0m"
-
-    # Remove existing files in /opt/marzban
-    echo -e "\e[33mRemoving existing files from /opt/marzban...\e[0m"
-    rm -rf /opt/marzban/*
-
-    # Remove marzban directory if exists and recreate it
-    if [ -d "/opt/marzban" ]; then
-        echo -e "\e[33mRemoving existing marzban directory from /opt...\e[0m"
-        rm -rf /opt/marzban
-    fi
-    echo -e "\e[33mCreating new marzban directory in /opt...\e[0m"
-    mkdir /opt/marzban
-
-    # Move and extract the second backup file (Opt)
-    echo -e "\e[33mMoving backup file $BACKUP_FILE_OPT to /opt/marzban/...\e[0m"
-    cp "$BACKUP_FILE_OPT" /opt/marzban/
-    if [ $? -eq 0 ]; then
-        echo -e "\e[32mBackup file moved successfully.\e[0m"
+    # Check for a single full backup file (no "_part" in name)
+    elif ls ${BACKUP_PREFIX}*.tar.gz 1> /dev/null 2>&1; then
+        # If full backup exists (a single complete file without _partxx)
+        RESTORE_FILE=$(ls ${BACKUP_PREFIX}*.tar.gz | grep -v "_part" | head -n 1)
+        display_message "Found full backup file: $RESTORE_FILE" "32"
     else
-        echo -e "\e[31mFailed to move the backup file.\e[0m"
+        # Display error message and wait for user input before returning to main menu
+        display_message "Error: No DB backup file or parts found!" "31"
         read -p "Press any key to return to the main menu..." -n1 -s
         return
     fi
 
-    echo -e "\e[33mExtracting the backup file to /opt/marzban/...\e[0m"
-    cd /opt/marzban/ || exit
-    case "$(basename "$BACKUP_FILE_OPT")" in
-        *.tar.gz)
-            pv "$BACKUP_FILE_OPT" | tar -xzf -
-            ;;
-        *.tar.xz)
-            pv "$BACKUP_FILE_OPT" | tar -xJf -
-            ;;
-        *.tar)
-            pv "$BACKUP_FILE_OPT" | tar -xf -
-            ;;
-        *)
-            echo -e "\e[31mUnsupported backup file format.\e[0m"
-            read -p "Press any key to return to the main menu..." -n1 -s
-            return
-            ;;
-    esac
+    # Step 2: Delete previous contents from the target directory
+    display_message "Deleting all contents in $DIR_PATH_1 before restore..." "33"
+    rm -rf "$DIR_PATH_1"/*
 
-    echo -e "\e[32mExtraction completed successfully.\e[0m"
-    # Remove the compressed file after successful extraction
-    rm -f "$(basename "$BACKUP_FILE_OPT")"
-    echo -e "\e[32mBackup file deleted after extraction from /opt/marzban.\e[0m"
+    if [ $? -eq 0 ]; then
+        display_message "Successfully deleted all contents in $DIR_PATH_1." "32"
+    else
+        display_message "Failed to delete contents of $DIR_PATH_1." "31"
+        read -p "Press any key to return to the main menu..." -n1 -s
+        return
+    fi
 
-    # Remove original backup files from /root after successful extraction
-    rm -f "$BACKUP_FILE_DB" "$BACKUP_FILE_OPT"
-    echo -e "\e[32mOriginal backup files deleted from /root.\e[0m"
+    # Step 3: Move the reassembled backup (or single file) to the database directory
+    display_message "Moving backup to $DIR_PATH_1..." "33"
+    mv "$RESTORE_FILE" "$DIR_PATH_1"
 
-    # Completion message
-    echo -e "\e[32mRestoration process completed successfully.\e[0m"
+    if [ $? -eq 0 ]; then
+        display_message "Successfully moved backup to $DIR_PATH_1." "32"
+    else
+        display_message "Failed to move backup to $DIR_PATH_1!" "31"
+        read -p "Press any key to return to the main menu..." -n1 -s
+        return
+    fi
+
+    # Step 4: Extract the backup in the target directory
+    display_message "Extracting backup in $DIR_PATH_1..." "33"
+    if [[ "$RESTORE_FILE" == *.tar.gz ]]; then
+        tar -xzf "$DIR_PATH_1/$(basename $RESTORE_FILE)" -C "$DIR_PATH_1"
+    else
+        tar -xJf "$DIR_PATH_1/$(basename $RESTORE_FILE)" -C "$DIR_PATH_1"
+    fi
+
+    if [ $? -eq 0 ]; then
+        display_message "Backup extracted successfully." "32"
+    else
+        display_message "Failed to extract the backup!" "31"
+        read -p "Press any key to return to the main menu..." -n1 -s
+        return
+    fi
+
+    # Step 5: Delete the backup archive file to save space
+    display_message "Deleting the backup archive..." "33"
+    rm -f "$DIR_PATH_1/$(basename $RESTORE_FILE)"
+
+    if [ $? -eq 0 ]; then
+        display_message "Successfully deleted the backup archive." "32"
+    else
+        display_message "Failed to delete the backup archive!" "31"
+        read -p "Press any key to return to the main menu..." -n1 -s
+        return
+    fi
+
+    # Step 6: Restore OPT files (dynamic file detection with wildcard)
+    display_message "Restoring the OPT files..." "33"
+
+    # Use wildcard to find the correct OPT backup file
+    ARCHIVE_OPT=$(ls /root/arm_opt_backup*.tar.* 2>/dev/null)
+
+    if [ -z "$ARCHIVE_OPT" ]; then
+        display_message "Error: OPT backup archive not found!" "31"
+        read -p "Press any key to return to the main menu..." -n1 -s
+        return
+    fi
+
+    # Extract the OPT archive to the target directory
+    display_message "Extracting OPT archive: $ARCHIVE_OPT" "33"
+
+    if [[ "$ARCHIVE_OPT" == *.tar.gz ]]; then
+        tar -xzf "$ARCHIVE_OPT" -C "$DIR_PATH_2"
+    elif [[ "$ARCHIVE_OPT" == *.tar.xz ]]; then
+        tar -xJf "$ARCHIVE_OPT" -C "$DIR_PATH_2"
+    else
+        display_message "Error: Unsupported archive format!" "31"
+        read -p "Press any key to return to the main menu..." -n1 -s
+        return
+    fi
+
+    if [ $? -eq 0 ]; then
+        display_message "Successfully restored the OPT files." "32"
+        rm -f "$ARCHIVE_OPT"
+    else
+        display_message "Failed to restore the OPT files!" "31"
+        read -p "Press any key to return to the main menu..." -n1 -s
+        return
+    fi
+
+    display_message "Restore process completed successfully!" "32"
     read -p "Press any key to return to the main menu..." -n1 -s
 }
 
