@@ -49,8 +49,7 @@ function main_menu {
             echo "6) Remove Cron Job"
             echo "7) Marzban Restart"
             echo "8) Uninstall"
-            echo "9) Update Script"  # گزینه جدید برای آپدیت اسکریپت
-            echo "10) Exit"
+            echo "9) Exit"
 
             read -p "Choose an option: " option
             
@@ -63,8 +62,7 @@ function main_menu {
                 6) remove_cron_job ;;
                 7) restart_marzban ;;    # Call the restart function for Marzban
                 8) uninstall ;;
-                9) update_script ;;   # تابع آپدیت اسکریپت
-                10) exit_script ;;    # Proper exit
+                9) exit_script ;;    # Proper exit
                 *) echo -e "\e[31mInvalid option! Please choose again.\e[0m" ;;
             esac
         else
@@ -85,18 +83,6 @@ function main_menu {
             esac
         fi
     done
-}
-function update_script {
-    echo -e "\e[36mUpdating script and restarting...\e[0m"
-    
-    # این دستور اسکریپت جدید را از GitHub دانلود و نصب می‌کند
-    bash <(curl -s https://raw.githubusercontent.com/arvinmoradi/ArM_Backuper_Marzban/main/install.sh)
-    
-    # پس از نصب، اسکریپت arm_bm اجرا می‌شود
-    arm_bm
-    
-    # خروج از اسکریپت فعلی
-    exit 0
 }
 
 # Function to check if the script is installed
