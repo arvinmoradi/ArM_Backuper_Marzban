@@ -12,10 +12,14 @@
 -  **نوع دیتابیس:** فرقی نمیکنه دیتابیس MySQL باشه یا SQLite ، عملیات Backup و Restore به یک روش انجام میشه. تشخیص نوع دیتابیس و عملیات مربوط به آن به صورت خودکار انجام میشه
 -  **تغییر دیتابیس به صورت خودکار از SQLite به MySQL** : (تکمیل نشده)
 
+
+
 ## تفاوت بین gzip و xz: 
 
 - فشرده سازی gzip کمتر است و منابع کمتری مصرف می کند.
 - فشرده سازی xz بیشتر است و منابع بیشتری مصرف می کند.
+
+
 
 ## پیش‌نیازها
 ```bash
@@ -26,6 +30,8 @@ sudo apt install toilet-fonts
 sudo apt install pv
 sudo apt install docker-compose -y
 ```
+
+
 ## نصب
 
 برای نصب ArM Backuper Marzban، از دستور زیر استفاده کنید:
@@ -33,11 +39,14 @@ sudo apt install docker-compose -y
 ```bash
 bash <(curl -s https://raw.githubusercontent.com/arvinmoradi/ArM_Backuper_Marzban/main/install.sh)
 ```
+
 ## فراخوانی
 بعد از نصب اسکریپت ، برای فراخوانی از دستور زیر استفاده کنید :
 ```bas
 arm_bm
 ```
+
+
 
 
 ## بازگردانی (Restore)
@@ -48,9 +57,12 @@ arm_bm
 - اگر حجم دیتابیس بیشتر از 50 مگابایت باشد، فایل بکاپ به قسمت‌های 49 مگابایتی تقسیم خواهند شد و برای بازیابی، تمام فایل‌ها را به همان مسیر /root/ آپلود کنید و گزینه Restore را انتخاب کنید.
 
 
+
 ## آموزش ویدویی
 
 [فیلم آموزشی ArM Backuper Marzban](https://www.youtube.com/watch?v=Il9wEefPOA4)
+
+
 
 
 ## مشکل ، انتقاد و پیشنهاد 
