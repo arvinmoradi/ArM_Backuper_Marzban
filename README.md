@@ -42,7 +42,7 @@ bash <(curl -s https://raw.githubusercontent.com/arvinmoradi/ArM_Backuper_Marzba
 
 ## فراخوانی
 بعد از نصب اسکریپت ، برای فراخوانی از دستور زیر استفاده کنید :
-```bas
+```bash
 arm_bm
 ```
 
