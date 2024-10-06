@@ -37,7 +37,7 @@ sudo apt install docker-compose -y
 برای نصب ArM Backuper Marzban، از دستور زیر استفاده کنید:
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/arvinmoradi/ArM_Backuper_Marzban/main/install.sh)
+<strong>bash <(curl -s https://raw.githubusercontent.com/arvinmoradi/ArM_Backuper_Marzban/main/install.sh)</strong>
 ```
 
 ## فراخوانی
