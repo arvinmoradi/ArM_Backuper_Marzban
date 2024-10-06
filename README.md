@@ -28,7 +28,6 @@ sudo apt install toilet -y
 sudo apt install figlet -y
 sudo apt install toilet-fonts
 sudo apt install pv
-sudo apt install docker-compose -y
 ```
 
 
